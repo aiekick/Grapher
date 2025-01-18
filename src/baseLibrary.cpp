@@ -2,7 +2,7 @@
 
 #include <ezlibs/ezLog.hpp>
 
-#include <imGuiPack.h>
+#include <imguipack.h>
 
 #define INPUT_NODES_CATEGORY_NAME "Inputs"
 #define OUTPUT_NODES_CATEGORY_NAME "Outputs"

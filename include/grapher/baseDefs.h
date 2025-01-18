@@ -14,7 +14,7 @@
 #define GRAPHER_API
 #endif
 
-#include <imGuiPack.h>
+#include <imguipack.h>
 
 #include <ezlibs/ezCnt.hpp>
 #include <ezlibs/ezGraph.hpp>

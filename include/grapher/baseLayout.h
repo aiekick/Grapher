@@ -1,7 +1,7 @@
 #pragma once
 #pragma warning(disable : 4251)
 
-#include <imGuiPack.h>
+#include <imguipack.h>
 
 #include <grapher/baseDefs.h>
 #include <grapher/baseNode.h>

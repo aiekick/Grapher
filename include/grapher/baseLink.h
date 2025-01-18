@@ -1,6 +1,6 @@
 #pragma once
 
-#include <imGuiPack.h>
+#include <imguipack.h>
 
 #include <ezlibs/ezXmlConfig.hpp>
 #include <ezlibs/ezGraph.hpp>
