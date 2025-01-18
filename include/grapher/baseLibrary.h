@@ -12,7 +12,7 @@
 #include <grapher/baseNode.h>
 #include <grapher/baseGraph.h>
 
-class BaseLibrary {
+class GRAPHER_API BaseLibrary {
 public:
     typedef std::string NodeSource;
     typedef std::string NodeLabel;

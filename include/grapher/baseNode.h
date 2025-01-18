@@ -18,7 +18,7 @@
         return std::make_shared<className>(*this); \
     }
 
-class BaseNode  //
+class GRAPHER_API BaseNode  //
     : public ez::Node,
       public ez::xml::Config,
       public GuiInterface,

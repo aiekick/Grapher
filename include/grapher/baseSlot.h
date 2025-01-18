@@ -12,7 +12,7 @@
 #include <unordered_map>
 #include <map>
 
-class BaseSlot  //
+class GRAPHER_API BaseSlot  //
     : public ez::Slot,
       public ez::xml::Config,
       public IDrawDebugInfos {

@@ -2,12 +2,24 @@
 
 #include <memory>
 
+#if defined(__WIN32__) || defined(WIN32) || defined(_WIN32) || defined(__WIN64__) || defined(WIN64) || defined(_WIN64) || defined(_MSC_VER)
+#if defined(grapher_EXPORTS)
+#define GRAPHER_API __declspec(dllexport)
+#elif defined(BUILD_GRAPHER_SHARED_LIBS)
+#define GRAPHER_API __declspec(dllimport)
+#else
+#define GRAPHER_API
+#endif
+#else
+#define GRAPHER_API
+#endif
+
 #include <imGuiPack.h>
 
 #include <ezlibs/ezCnt.hpp>
 #include <ezlibs/ezGraph.hpp>
 
-struct BaseStyle {
+struct GRAPHER_API BaseStyle {
     bool debugMode = false;
     nd::Style style;
 };
@@ -30,7 +42,7 @@ class BaseSlot;
 typedef std::shared_ptr<BaseSlot> BaseSlotPtr;
 typedef std::weak_ptr<BaseSlot> BaseSlotWeak;
 
-class IDrawDebugInfos {
+class GRAPHER_API IDrawDebugInfos {
 public:
     virtual void drawDebugInfos() = 0;
 };

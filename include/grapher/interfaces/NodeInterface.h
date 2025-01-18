@@ -2,7 +2,9 @@
 
 #include <grapher/baseDefs.h>
 
-class NodeInterface {
+#include <grapher/baseDefs.h>
+
+class GRAPHER_API NodeInterface {
 protected:
     BaseNodeWeak m_parentNode;  // node parent dans le cas d'un node enfant d'un graph
 

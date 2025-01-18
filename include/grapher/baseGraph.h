@@ -14,7 +14,7 @@
 #include <functional>
 #include <unordered_map>
 
-class BaseGraph  //
+class GRAPHER_API BaseGraph  //
     : public ez::Graph,
       public ez::xml::Config,
       public GuiInterface,

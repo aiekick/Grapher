@@ -12,7 +12,7 @@
 
 #include <memory>
 
-class BaseLink : public ez::UUID, public IDrawDebugInfos, public ez::xml::Config {
+class GRAPHER_API BaseLink : public ez::UUID, public IDrawDebugInfos, public ez::xml::Config {
     friend class BaseGraph;
 
 private:  // Style

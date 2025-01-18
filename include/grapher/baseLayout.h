@@ -11,7 +11,7 @@
 #include <cstdint>
 #include <map>
 
-class BaseLayout {
+class GRAPHER_API BaseLayout {
 public:
     static ImVec2 s_NodeSpacing;
     static float s_NodeCentering;
