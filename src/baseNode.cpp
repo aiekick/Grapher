@@ -29,13 +29,8 @@ bool BaseNode::drawNode() {
         change |= m_drawFooter();
         change |= m_drawEnd();
     }
-
     m_size = ImGui::GetItemRectSize();
     m_pos = ImGui::GetItemRectMin();
-    if (ImGui::IsItemHovered()) {
-        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-        }
-    }
     return change;
 }
 

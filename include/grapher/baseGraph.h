@@ -26,11 +26,15 @@ public:
         std::string flowType;                       // the type for show the flow with F key
         ImGuiKey showFlowKey = ImGuiKey_Backspace;  // the key who start the flow display
     };
-    typedef std::function<void(const BaseGraphWeak&)> BgRightClickActionFunctor;
-    typedef std::function<void(const BaseGraphWeak&, const BaseNodeWeak&)> SelectNodeActionFunctor; 
-    typedef std::function<bool(const BaseGraphWeak&, const BaseSlotWeak&)> PrepareForCreateNodeFromSlotActionFunctor;
-    typedef std::function<bool(const BaseGraphWeak&, const ez::xml::Node&, const ez::xml::Node&)> LoadNodeFromXmlFunctor;
-    typedef std::function<void(const BaseGraphWeak&, const BaseSlotWeak&, const ImGuiMouseButton&)> SelectSlotActionFunctor;
+    typedef void* UserDatas;
+    typedef std::function<void(const BaseGraphWeak&, UserDatas)> BgRightClickActionFunctor;
+    typedef std::function<void(const BaseGraphWeak&, const BaseNodeWeak&, UserDatas)> SelectNodeActionFunctor;
+    typedef std::function<void(const BaseGraphWeak&, const BaseNodeWeak&, UserDatas)> SelectNodeAsTargetActionFunctor;
+    typedef std::function<bool(const BaseGraphWeak&, const BaseSlotWeak&, UserDatas)> PrepareForCreateNodeFromSlotActionFunctor;
+    typedef std::function<bool(const BaseGraphWeak&, const ez::xml::Node&, const ez::xml::Node&, UserDatas)> LoadNodeFromXmlFunctor;
+    typedef std::function<void(const BaseGraphWeak&, const BaseNodeWeak&, const BaseSlotWeak&, const ImGuiMouseButton&, UserDatas)> SelectSlotActionFunctor;
+    typedef std::function<bool(const BaseGraphWeak&, const BaseNodeWeak&, UserDatas)> IsNodeSelectedAsTargetActionFunctor;
+    typedef std::function<void(const BaseGraphWeak&, const BaseNodeWeak&, const BaseSlotWeak&, UserDatas)> SelectSlotAsTargetActionFunctor; 
     typedef ez::Uuid LinkUuid;
 
 public:  // Static
@@ -54,11 +58,14 @@ private:  // Graph
     nd::LinkId m_contextMenuLinkId{};
     BaseNodeWeak m_selectedNode;
     BaseLinkPtrCnt m_links;  // linkId, link // for search query
-    LoadNodeFromXmlFunctor m_LoadNodeFromXmlFunctor{nullptr};
-    SelectNodeActionFunctor m_SelectNodeActionFunctor{nullptr};
-    SelectSlotActionFunctor m_SelectSlotActionFunctor{nullptr};
     BgRightClickActionFunctor m_BgRightClickActionFunctor{nullptr};
+    SelectNodeActionFunctor m_SelectNodeActionFunctor{nullptr};
+    SelectNodeAsTargetActionFunctor m_SelectNodeAsTargetActionFunctor{nullptr};
     PrepareForCreateNodeFromSlotActionFunctor m_PrepareForCreateNodeFromSlotActionFunctor{nullptr};
+    LoadNodeFromXmlFunctor m_LoadNodeFromXmlFunctor{nullptr};
+    SelectSlotActionFunctor m_SelectSlotActionFunctor{nullptr};
+    IsNodeSelectedAsTargetActionFunctor m_IsNodeSelectedAsTargetActionFunctor{nullptr};
+    SelectSlotAsTargetActionFunctor m_SelectSlotAsTargetActionFunctor{nullptr};
     std::vector<nd::NodeId> m_nodesToCopy;  // for copy/paste
     ImVec2 m_nodesCopyOffset;
     bool m_graphChanged{false};
@@ -120,11 +127,34 @@ public:  // Normal
     // return true for continue xml parsing of childs in this node or false for interrupt the child exploration (if we want explore child ourselves)
     bool setFromXmlNodes(const ez::xml::Node& vNode, const ez::xml::Node& vParent, const std::string& vUserDatas) override;
 
-    void setSelectNodeActionFunctor(const SelectNodeActionFunctor& vFunctor);
-    void setSelectSlotActionFunctor(const SelectSlotActionFunctor& vFunctor);
-    void setLoadNodeFromXmlFunctor(const LoadNodeFromXmlFunctor& vFunctor);
     void setBgRightClickActionFunctor(const BgRightClickActionFunctor& vFunctor);
+    void bgRightClickAction(const BaseGraphWeak& vGraph, UserDatas vUserDatas);
+
+    void setSelectNodeActionFunctor(const SelectNodeActionFunctor& vFunctor);
+    void selectNodeAction(const BaseGraphWeak& vGraph, const BaseNodeWeak& vNode, UserDatas vUserDatas);
+
+    void setSelectNodeAsTargetActionFunctor(const SelectNodeAsTargetActionFunctor& vFunctor);
+    void selectNodeAsTargetAction(const BaseGraphWeak& vGraph, const BaseNodeWeak& vNode, UserDatas vUserDatas);
+
+    void setIsNodeSelectedAsTargetActionFunctor(const IsNodeSelectedAsTargetActionFunctor& vFunctor);
+    bool isNodeSelectedAsTargetAction(const BaseGraphWeak& vGraph, const BaseNodeWeak& vNode, UserDatas vUserDatas);
+
     void setPrepareForCreateNodeFromSlotActionFunctor(const PrepareForCreateNodeFromSlotActionFunctor& vFunctor);
+    bool prepareForCreateNodeFromSlotAction(const BaseGraphWeak& vGraph, const BaseSlotWeak&, UserDatas vUserDatas);
+
+    void setLoadNodeFromXmlFunctor(const LoadNodeFromXmlFunctor& vFunctor);
+    bool loadNodeFromXml(const BaseGraphWeak& vGraph, const ez::xml::Node& vNode, const ez::xml::Node& vParent, UserDatas vUserDatas);
+
+    void setSelectSlotActionFunctor(const SelectSlotActionFunctor& vFunctor);
+    void selectSlotAction(
+        const BaseGraphWeak& vGraph,
+        const BaseNodeWeak& vNode,
+        const BaseSlotWeak& vSlot,
+        const ImGuiMouseButton& vBNutton,
+        UserDatas vUserDatas);
+
+    void setSelectSlotAsTargetActionFunctor(const SelectSlotAsTargetActionFunctor& vFunctor);
+    void selectSlotAsTargetAction(const BaseGraphWeak& vGraph, const BaseNodeWeak& vNode, const BaseSlotWeak& vSlot, UserDatas vUserDatas);
 
     void drawDebugInfos() override;
 
@@ -183,7 +213,6 @@ private:  // Graph
 
     // create node with a specific slot type in mind
     void m_doCreateNodeFromSlot(const BaseSlotWeak& vSlot);
-    bool m_PrepareForCreateNodeFromSlot(const BaseSlotWeak& vSlot);
 
     void m_copySelectedNodes();
     void m_pasteNodesAtMousePos();

@@ -113,7 +113,7 @@ void BaseGraph::m_drawPopups() {
     if (nd::ShowBackgroundContextMenu()) {
         ImGui::OpenPopup(BACKGROUND_CONTEXT_MENU);
         m_openPopupPosition = nd::ScreenToCanvas(ImGui::GetMousePos());
-        m_PrepareForCreateNodeFromSlot({});  // no slot, maybe needed for reset what was done for slot
+        prepareForCreateNodeFromSlotAction(m_getThis<BaseGraph>(), {}, nullptr);  // no slot, maybe needed for reset what was done for slot
     }
     m_drawBgContextMenuPopup();
     nd::Resume();
@@ -121,9 +121,7 @@ void BaseGraph::m_drawPopups() {
 
 void BaseGraph::m_drawBgContextMenuPopup() {
     if (ImGui::BeginPopup(BACKGROUND_CONTEXT_MENU)) {
-        if (m_BgRightClickActionFunctor != nullptr) {
-            m_BgRightClickActionFunctor(m_getThis<BaseGraph>());
-        }
+        bgRightClickAction(m_getThis<BaseGraph>(), nullptr);
         ImGui::EndPopup();
     }
 }
@@ -225,7 +223,7 @@ bool BaseGraph::setFromXmlNodes(const ez::xml::Node& vNode, const ez::xml::Node&
             vNode.getAttribute<float>("scale"));
         return false;
     } else if (strName == "node") {
-        if (m_LoadNodeFromXmlFunctor(m_getThis<BaseGraph>(), vNode, vParent)) {
+        if (loadNodeFromXml(m_getThis<BaseGraph>(), vNode, vParent, nullptr)) {
             RecursParsingConfigChilds(vNode, vUserDatas);
         }
         return false;
@@ -257,24 +255,87 @@ void BaseGraph::afterXmlLoading() {
 ////// ACTION FUNCTORS ///////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
+void BaseGraph::setBgRightClickActionFunctor(const BgRightClickActionFunctor& vFunctor) {
+    m_BgRightClickActionFunctor = vFunctor;
+}
+
+void BaseGraph::bgRightClickAction(const BaseGraphWeak& vGraph, UserDatas vUserDatas) {
+    if (m_BgRightClickActionFunctor != nullptr) {
+        m_BgRightClickActionFunctor(vGraph, vUserDatas);
+    }
+}
+
 void BaseGraph::setSelectNodeActionFunctor(const SelectNodeActionFunctor& vFunctor) {
     m_SelectNodeActionFunctor = vFunctor;
 }
 
-void BaseGraph::setSelectSlotActionFunctor(const SelectSlotActionFunctor& vFunctor) {
-    m_SelectSlotActionFunctor = vFunctor;
+void BaseGraph::selectNodeAction(const BaseGraphWeak& vGraph, const BaseNodeWeak& vNode, UserDatas vUserDatas) {
+    if (m_SelectNodeActionFunctor != nullptr) {
+        m_SelectNodeActionFunctor(vGraph, vNode, vUserDatas);
+    }
+}
+
+void BaseGraph::setSelectNodeAsTargetActionFunctor(const SelectNodeAsTargetActionFunctor& vFunctor) {
+    m_SelectNodeAsTargetActionFunctor = vFunctor;
+}
+
+void BaseGraph::selectNodeAsTargetAction(const BaseGraphWeak& vGraph, const BaseNodeWeak& vNode, UserDatas vUserDatas) {
+    if (m_SelectNodeAsTargetActionFunctor != nullptr) {
+        m_SelectNodeAsTargetActionFunctor(vGraph, vNode, vUserDatas);
+    }
+}
+
+void BaseGraph::setIsNodeSelectedAsTargetActionFunctor(const IsNodeSelectedAsTargetActionFunctor& vFunctor) {
+    m_IsNodeSelectedAsTargetActionFunctor = vFunctor;
+}
+
+bool BaseGraph::isNodeSelectedAsTargetAction(const BaseGraphWeak& vGraph, const BaseNodeWeak& vNode, UserDatas vUserDatas) {
+    if (m_IsNodeSelectedAsTargetActionFunctor != nullptr) {
+        return m_IsNodeSelectedAsTargetActionFunctor(vGraph, vNode, vUserDatas);
+    }
+    return false;
+}
+
+void BaseGraph::setPrepareForCreateNodeFromSlotActionFunctor(const PrepareForCreateNodeFromSlotActionFunctor& vFunctor) {
+    m_PrepareForCreateNodeFromSlotActionFunctor = vFunctor;
+}
+
+bool BaseGraph::prepareForCreateNodeFromSlotAction(const BaseGraphWeak& vGraph, const BaseSlotWeak& vSlot, UserDatas vUserDatas) {
+    if (m_PrepareForCreateNodeFromSlotActionFunctor != nullptr) {
+        return m_PrepareForCreateNodeFromSlotActionFunctor(vGraph, vSlot, vUserDatas);
+    }
+    return false;
 }
 
 void BaseGraph::setLoadNodeFromXmlFunctor(const LoadNodeFromXmlFunctor& vFunctor) {
     m_LoadNodeFromXmlFunctor = vFunctor;
 }
 
-void BaseGraph::setBgRightClickActionFunctor(const BgRightClickActionFunctor& vFunctor) {
-    m_BgRightClickActionFunctor = vFunctor;
+bool BaseGraph::loadNodeFromXml(const BaseGraphWeak& vGraph, const ez::xml::Node& vNode, const ez::xml::Node& vParent, UserDatas vUserDatas) {
+    if (m_LoadNodeFromXmlFunctor != nullptr) {
+        return m_LoadNodeFromXmlFunctor(vGraph, vNode, vParent, vUserDatas);
+    }
+    return false;
 }
 
-void BaseGraph::setPrepareForCreateNodeFromSlotActionFunctor(const PrepareForCreateNodeFromSlotActionFunctor& vFunctor) {
-    m_PrepareForCreateNodeFromSlotActionFunctor = vFunctor;
+void BaseGraph::setSelectSlotActionFunctor(const SelectSlotActionFunctor& vFunctor) {
+    m_SelectSlotActionFunctor = vFunctor;
+}
+
+void BaseGraph::selectSlotAction(const BaseGraphWeak& vGraph, const BaseNodeWeak& vNode, const BaseSlotWeak& vSlot, const ImGuiMouseButton& vButton, UserDatas vUserDatas) {
+    if (m_SelectSlotActionFunctor != nullptr) {
+        m_SelectSlotActionFunctor(vGraph, vNode, vSlot, vButton, vUserDatas);
+    }
+}
+
+void BaseGraph::setSelectSlotAsTargetActionFunctor(const SelectSlotAsTargetActionFunctor& vFunctor) {
+    m_SelectSlotAsTargetActionFunctor = vFunctor;
+}
+
+void BaseGraph::selectSlotAsTargetAction(const BaseGraphWeak& vGraph, const BaseNodeWeak& vNode, const BaseSlotWeak& vSlot, UserDatas vUserDatas) {
+    if (m_SelectSlotAsTargetActionFunctor != nullptr) {
+        m_SelectSlotAsTargetActionFunctor(vGraph, vNode, vSlot, vUserDatas);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -445,36 +506,26 @@ void BaseGraph::m_doSelectedLinkOrNode() {
         } else {
             m_selectedNode.reset();
         }
-        if (m_SelectNodeActionFunctor != nullptr) {
-            m_SelectNodeActionFunctor(m_getThis<BaseGraph>(), m_selectedNode);
-        }
+        selectNodeAction(m_getThis<BaseGraph>(), m_selectedNode, nullptr);
     }
 }
 
-void BaseGraph::m_doGetSelectedNodeSlot(const BaseNodeWeak& vSlot) {
-    auto node_ptr = vSlot.lock();
+void BaseGraph::m_doGetSelectedNodeSlot(const BaseNodeWeak& vNode) {
+    auto node_ptr = vNode.lock();
     BaseSlotWeak slot;
     ImGuiMouseButton button = -1;
     if (node_ptr->isSlotDoubleClicked(slot, button)) {
-        if (m_SelectSlotActionFunctor != nullptr) {
-            m_SelectSlotActionFunctor(m_getThis<BaseGraph>(), slot, button);
-        }
+        selectSlotAction(m_getThis<BaseGraph>(), vNode, slot, button, nullptr);
     }
 }
 
 void BaseGraph::m_doCreateNodeFromSlot(const BaseSlotWeak& vSlot) {
-    if (m_PrepareForCreateNodeFromSlot(vSlot)) {
+    if (prepareForCreateNodeFromSlotAction(m_getThis<BaseGraph>(), vSlot, nullptr)) {
         ImGui::OpenPopup(BACKGROUND_CONTEXT_MENU);
         m_openPopupPosition = nd::ScreenToCanvas(ImGui::GetMousePos());
     }
 }
 
-bool BaseGraph::m_PrepareForCreateNodeFromSlot(const BaseSlotWeak& vSlot) {
-    if (m_PrepareForCreateNodeFromSlotActionFunctor != nullptr) {
-        return m_PrepareForCreateNodeFromSlotActionFunctor(m_getThis<BaseGraph>(), vSlot);
-    }
-    return false;
-}
     
 //////////////////////////////////////////////////////////////////////////////
 ////// SHORTCUT //////////////////////////////////////////////////////////////
