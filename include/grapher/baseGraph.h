@@ -26,10 +26,11 @@ public:
         std::string flowType;                       // the type for show the flow with F key
         ImGuiKey showFlowKey = ImGuiKey_Backspace;  // the key who start the flow display
     };
-    typedef std::function<void(const BaseGraphWeak&, const BaseNodeWeak&)> SelectNodeActionFunctor;
     typedef std::function<void(const BaseGraphWeak&)> BgRightClickActionFunctor;
+    typedef std::function<void(const BaseGraphWeak&, const BaseNodeWeak&)> SelectNodeActionFunctor; 
     typedef std::function<bool(const BaseGraphWeak&, const BaseSlotWeak&)> PrepareForCreateNodeFromSlotActionFunctor;
     typedef std::function<bool(const BaseGraphWeak&, const ez::xml::Node&, const ez::xml::Node&)> LoadNodeFromXmlFunctor;
+    typedef std::function<void(const BaseGraphWeak&, const BaseSlotWeak&, const ImGuiMouseButton&)> SelectSlotActionFunctor;
     typedef ez::Uuid LinkUuid;
 
 public:  // Static
@@ -53,8 +54,9 @@ private:  // Graph
     nd::LinkId m_contextMenuLinkId{};
     BaseNodeWeak m_selectedNode;
     BaseLinkPtrCnt m_links;  // linkId, link // for search query
-    SelectNodeActionFunctor m_SelectNodeActionFunctor{nullptr};
     LoadNodeFromXmlFunctor m_LoadNodeFromXmlFunctor{nullptr};
+    SelectNodeActionFunctor m_SelectNodeActionFunctor{nullptr};
+    SelectSlotActionFunctor m_SelectSlotActionFunctor{nullptr};
     BgRightClickActionFunctor m_BgRightClickActionFunctor{nullptr};
     PrepareForCreateNodeFromSlotActionFunctor m_PrepareForCreateNodeFromSlotActionFunctor{nullptr};
     std::vector<nd::NodeId> m_nodesToCopy;  // for copy/paste
@@ -119,6 +121,7 @@ public:  // Normal
     bool setFromXmlNodes(const ez::xml::Node& vNode, const ez::xml::Node& vParent, const std::string& vUserDatas) override;
 
     void setSelectNodeActionFunctor(const SelectNodeActionFunctor& vFunctor);
+    void setSelectSlotActionFunctor(const SelectSlotActionFunctor& vFunctor);
     void setLoadNodeFromXmlFunctor(const LoadNodeFromXmlFunctor& vFunctor);
     void setBgRightClickActionFunctor(const BgRightClickActionFunctor& vFunctor);
     void setPrepareForCreateNodeFromSlotActionFunctor(const PrepareForCreateNodeFromSlotActionFunctor& vFunctor);
@@ -174,6 +177,7 @@ private:  // Graph
     void m_doCreateLinkOrNode();
     void m_doDeleteLinkOrNode();
     void m_doSelectedLinkOrNode();
+    void m_doGetSelectedNodeSlot(const BaseNodeWeak& vSlot);
 
     void m_doShorcutsOnNode();
 

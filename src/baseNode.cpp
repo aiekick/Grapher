@@ -162,6 +162,15 @@ void BaseNode::afterXmlLoading() {
     m_xmlLoading = false;
 }
 
+bool BaseNode::isSlotDoubleClicked(BaseSlotWeak &vSlot, ImGuiMouseButton &vButton) {
+    if (!m_doubleClickedSlot.expired()) {
+        vSlot = m_doubleClickedSlot;
+        vButton = m_doubleClickedSlotButton;
+        return true;
+    }
+    return false;
+}
+
 //////////////////////////////////////////////////////////////////////////////
 ////// DRAW DEBUG INFOS //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
@@ -206,9 +215,11 @@ bool BaseNode::m_drawHeader() {
     ImGui::BeginHorizontal("header");
     ImGui::Spring(1, 5.0f);
     const auto &datas = getDatas<BaseNodeDatas>();
-    const bool pushed = ImGui::PushStyleColorWithContrast4(datas.color, ImGuiCol_Text,
-                                                           ImGui::CustomStyle::puContrastedTextColor,
-                                                           ImGui::CustomStyle::puContrastRatio);
+    const bool pushed = ImGui::PushStyleColorWithContrast4(  //
+        datas.color,
+        ImGuiCol_Text,
+        ImGui::CustomStyle::puContrastedTextColor,
+        ImGui::CustomStyle::puContrastRatio);
     ImGui::TextUnformatted(getDatas<BaseNodeDatas>().name.c_str());
     if (pushed) {
         ImGui::PopStyleColor();
@@ -220,23 +231,32 @@ bool BaseNode::m_drawHeader() {
 }
 
 bool BaseNode::m_drawContent() {
+    bool change = false;
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x, 0));
     ImGui::BeginHorizontal("content");
     ImGui::Spring(0, 0);
     ImGui::BeginVertical("inputs", ImVec2(0, 0), 0.0f);
     for (auto &slot: m_getInputSlotsRef()) {  // slots
-        std::static_pointer_cast<BaseSlot>(slot.lock())->draw();
+        auto base_slot_ptr = std::static_pointer_cast<BaseSlot>(slot.lock());
+        change |= base_slot_ptr->draw();
+        if (base_slot_ptr->isMouseDoubleClicked(m_doubleClickedSlotButton)) {
+            m_doubleClickedSlot = base_slot_ptr;
+        }
     }
     ImGui::EndVertical();
     ImGui::Spring(1, 5.0f);                               // pour que BeginVertical soi pouss� au bout
     ImGui::BeginVertical("outputs", ImVec2(0, 0), 1.0f);  // 1.0f pour que l'interieur soit align� sur la fin
     for (auto &slot: m_getOutputSlotsRef()) {            // slots
-        std::static_pointer_cast<BaseSlot>(slot.lock())->draw();
+        auto base_slot_ptr = std::static_pointer_cast<BaseSlot>(slot.lock());
+        change |= base_slot_ptr->draw();
+        if (base_slot_ptr->isMouseDoubleClicked(m_doubleClickedSlotButton)) {
+            m_doubleClickedSlot = base_slot_ptr;
+        }
     }
     ImGui::EndVertical();
     ImGui::EndHorizontal();
     ImGui::PopStyleVar();
-    return false;
+    return change;
 }
 
 bool BaseNode::m_drawInputSlots() {

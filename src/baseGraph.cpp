@@ -59,6 +59,7 @@ bool BaseGraph::drawGraph() {
             auto node_ptr = std::static_pointer_cast<BaseNode>(node.lock());
             const auto node_pos = node_ptr->m_pos;
             changed |= node_ptr->drawNode();
+            m_doGetSelectedNodeSlot(node_ptr);
             if (node_ptr->m_pos != node_pos) {
                 m_graphChanged = true;
             }
@@ -260,6 +261,10 @@ void BaseGraph::setSelectNodeActionFunctor(const SelectNodeActionFunctor& vFunct
     m_SelectNodeActionFunctor = vFunctor;
 }
 
+void BaseGraph::setSelectSlotActionFunctor(const SelectSlotActionFunctor& vFunctor) {
+    m_SelectSlotActionFunctor = vFunctor;
+}
+
 void BaseGraph::setLoadNodeFromXmlFunctor(const LoadNodeFromXmlFunctor& vFunctor) {
     m_LoadNodeFromXmlFunctor = vFunctor;
 }
@@ -381,14 +386,20 @@ void BaseGraph::m_doCreateLinkOrNode() {
 #endif
                     }
                 } else if (slot_ptr->getDatas<ez::SlotDatas>().dir == ez::SlotDir::OUTPUT) {
-                    if ((slot_ptr->getLinks().size() + 1) > slot_ptr->getMaxConnectionCount()) {
-                        m_drawLabel("the slot cant accept more connections to new node\nbut accept relinking", IM_COL32(32, 45, 32, 180));
-                        nd::RejectNewItem(ImColor(255, 0, 0), 2.0f);
-                    } else {
-                        m_drawLabel("+ Create Node", IM_COL32(32, 45, 32, 180));  //-V112
-                        if (nd::AcceptNewItem()) {
-                            m_doCreateNodeFromSlot(slot_ptr);
+                    const size_t maxCo = slot_ptr->getMaxConnectionCount();
+                    if (maxCo > 0) {
+                        if ((slot_ptr->getLinks().size() + 1) > maxCo) {
+                            m_drawLabel("the slot cant accept more connections to new node\nbut accept relinking", IM_COL32(32, 45, 32, 180));
+                            nd::RejectNewItem(ImColor(255, 0, 0), 2.0f);
+                        } else {
+                            m_drawLabel("+ Create Node", IM_COL32(32, 45, 32, 180));  //-V112
+                            if (nd::AcceptNewItem()) {
+                                m_doCreateNodeFromSlot(slot_ptr);
+                            }
                         }
+                    } else {
+                        m_drawLabel("no connection possible", IM_COL32(32, 45, 32, 180));
+                        nd::RejectNewItem(ImColor(255, 0, 0), 2.0f);
                     }
                 }
             } else {
@@ -436,6 +447,17 @@ void BaseGraph::m_doSelectedLinkOrNode() {
         }
         if (m_SelectNodeActionFunctor != nullptr) {
             m_SelectNodeActionFunctor(m_getThis<BaseGraph>(), m_selectedNode);
+        }
+    }
+}
+
+void BaseGraph::m_doGetSelectedNodeSlot(const BaseNodeWeak& vSlot) {
+    auto node_ptr = vSlot.lock();
+    BaseSlotWeak slot;
+    ImGuiMouseButton button = -1;
+    if (node_ptr->isSlotDoubleClicked(slot, button)) {
+        if (m_SelectSlotActionFunctor != nullptr) {
+            m_SelectSlotActionFunctor(m_getThis<BaseGraph>(), slot, button);
         }
     }
 }

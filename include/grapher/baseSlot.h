@@ -89,6 +89,8 @@ private:
     // donc plusieurs links
     BaseLinkWeakCnt m_links;
 
+    ImGuiMouseButton m_doubleClickedButton = -1;
+
 public:
     template <typename T>
     explicit BaseSlot(const BaseStyle& vParentStyle, const T& vDatas) : m_parentStyle(vParentStyle), ez::Slot(std::make_shared<T>(vDatas)) {
@@ -101,7 +103,7 @@ public:
     void setRadius(const float vRadius);
     void setColor(const ImVec4& vColor);
     void setPos(const ImVec2& vPos);
-    bool draw();
+    virtual bool draw();
 
     bool isConnected() const;
     const BaseLinkWeakCnt& getLinks() const;
@@ -121,6 +123,8 @@ public:
 
     nd::PinId getPinID() { return m_pinID; }
 
+    bool isMouseDoubleClicked(ImGuiMouseButton& vButton);
+
 private:
     void m_drawInputWidget();
     void m_drawOutputWidget();
@@ -132,4 +136,5 @@ protected:
     virtual void m_drawBaseSlot(const ImVec2& vCenter, bool vConnected, ImU32 vColor, ImU32 vInnerColor);
     virtual void m_drawHoveredSlotText(const ImVec2& vCenter, bool vConnected, ImU32 vColor, ImU32 vInnerColor);
     virtual size_t m_getMaxConnectionCount() const;
+    ImGuiMouseButton m_getDoubleClickedMouseButton() const;
 };

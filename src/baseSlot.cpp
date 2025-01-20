@@ -26,6 +26,7 @@ void BaseSlot::setPos(const ImVec2& vPos) {
 
 bool BaseSlot::draw() {
     ImGui::PushID(this);
+    m_doubleClickedButton = -1;
     auto& datas = getDatasRef<BaseSlotDatas>();
     if (!datas.hidden) {
         if (isAnInput()) {
@@ -93,6 +94,13 @@ void BaseSlot::m_drawSlot() {
     datas.highLighted = false;
 
     if (ImGui::IsRectVisible(datas.slotIconSize)) {
+        if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+            m_doubleClickedButton = ImGuiMouseButton_Left;
+        } else if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Right)) {
+            m_doubleClickedButton = ImGuiMouseButton_Right;
+        } else if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Middle)) {
+            m_doubleClickedButton = ImGuiMouseButton_Middle;
+        }
         m_drawBaseSlot(slotCenter, datas.connected, datas.color, datas.color);
     }
 }
@@ -115,7 +123,7 @@ size_t BaseSlot::getMaxConnectionCount() const {
     if (datas.dir == ez::SlotDir::INPUT) { 
         count = 1U;  // always 1 for an input
     } else if (datas.dir == ez::SlotDir::OUTPUT) {
-        count = ez::clamp<size_t>(count, 1U, 1024U);  // 1024 is big enough i guess :)
+        count = ez::clamp<size_t>(count, 0U, 1024U);  // 1024 is big enough i guess :)
     }
     return count;
 }
@@ -123,6 +131,14 @@ size_t BaseSlot::getMaxConnectionCount() const {
 void BaseSlot::setUuid(const ez::Uuid vUUID) {
     ez::UUID::setUuid(vUUID);
     m_pinID = getUuid();
+}
+
+bool BaseSlot::isMouseDoubleClicked(ImGuiMouseButton& vButton) {
+    if (m_doubleClickedButton > -1) {
+        vButton = m_doubleClickedButton;
+        return true;
+    }
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -231,6 +247,10 @@ void BaseSlot::m_drawBaseSlot(const ImVec2& vCenter, bool /*vConnected*/, ImU32 
 size_t BaseSlot::m_getMaxConnectionCount() const {
     const auto& datas = getDatas<BaseSlotDatas>();
     return (datas.dir == ez::SlotDir::INPUT ? 1U : 1024U); // 1024 is big enough i guess :)
+}
+
+ImGuiMouseButton BaseSlot::m_getDoubleClickedMouseButton() const {
+    return m_doubleClickedButton;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

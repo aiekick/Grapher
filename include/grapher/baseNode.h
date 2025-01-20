@@ -59,6 +59,9 @@ private:  // Node
     bool m_isSelected{false};
     bool m_xmlLoading = false;
 
+    BaseSlotWeak m_doubleClickedSlot;
+    ImGuiMouseButton m_doubleClickedSlotButton = -1;
+
 private:  // Graph
     nd::EditorContext* m_pNodeGraphContext{nullptr};
     std::set<ez::Uuid> m_selectedNodes{};
@@ -102,6 +105,8 @@ public:  // Normal
 
     void beforeXmlLoading() override;
     void afterXmlLoading() override;
+
+    bool isSlotDoubleClicked(BaseSlotWeak& vSlot, ImGuiMouseButton& vButton);
 
 public:  // Template
     template <typename T>
