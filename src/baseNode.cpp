@@ -37,44 +37,43 @@ bool BaseNode::drawNode() {
 ez::xml::Nodes BaseNode::getXmlNodes(const std::string &vUserDatas) {
     ez::xml::Node xml;
     const auto &node_datas = getDatas<BaseNodeDatas>();
-    auto &node = xml.addChild("node")                        //
-            .addAttribute("name", node_datas.name)  //
-            .addAttribute("type", node_datas.type)  //
-            .addAttribute("pos", m_pos);
+    auto &node = xml.addChild("node")  //
+                     .addAttribute("name", node_datas.name)  //
+                     .addAttribute("type", node_datas.type)  //
+                     .addAttribute("pos", m_pos);
     // module is added here, before slots, will be filled in derived nodes
     node.addChild("module").addAttribute("type", getDatas<BaseNodeDatas>().type);
     if (!m_getInputSlots().empty()) {
         auto &slots_in = node.addChild("inputs");
         uint32_t idx = 0U;
-        for (const auto &slot: m_getInputSlots()) {
+        for (const auto &slot : m_getInputSlots()) {
             auto slot_ptr = std::static_pointer_cast<BaseSlot>(slot.lock());
             const auto &slot_datas = slot_ptr->getDatas<BaseSlot::BaseSlotDatas>();
             slots_in.addChild("slot")
-                    .addAttribute("name", slot_datas.name)     //
-                    .addAttribute("type", slot_datas.type)     //
-                    .addAttribute("gid", slot_ptr->getUuid())  //
-                    .addAttribute("lid", idx++);
+                .addAttribute("name", slot_datas.name)  //
+                .addAttribute("type", slot_datas.type)  //
+                .addAttribute("gid", slot_ptr->getUuid())  //
+                .addAttribute("lid", idx++);
         }
     }
     if (!m_getOutputSlots().empty()) {
         uint32_t idx = 0U;
         auto &slots_out = node.addChild("outputs");
-        for (const auto &slot: m_getOutputSlots()) {
+        for (const auto &slot : m_getOutputSlots()) {
             auto slot_ptr = std::static_pointer_cast<BaseSlot>(slot.lock());
             const auto &slot_datas = slot_ptr->getDatas<BaseSlot::BaseSlotDatas>();
             slots_out.addChild("slot")
-                    .addAttribute("name", slot_datas.name)     //
-                    .addAttribute("type", slot_datas.type)     //
-                    .addAttribute("gid", slot_ptr->getUuid())  //
-                    .addAttribute("lid", idx++);
+                .addAttribute("name", slot_datas.name)  //
+                .addAttribute("type", slot_datas.type)  //
+                .addAttribute("gid", slot_ptr->getUuid())  //
+                .addAttribute("lid", idx++);
         }
     }
     return xml.getChildren();
 }
 
 // return true for continue xml parsing of childs in this node or false for interrupt the child exploration (if we want explore child ourselves)
-bool
-BaseNode::setFromXmlNodes(const ez::xml::Node &vNode, const ez::xml::Node &vParent, const std::string &vUserDatas) {
+bool BaseNode::setFromXmlNodes(const ez::xml::Node &vNode, const ez::xml::Node &vParent, const std::string &vUserDatas) {
     const auto &strName = vNode.getName();
     const auto &strParentName = vParent.getName();
     if (strName == "node") {
@@ -84,7 +83,7 @@ BaseNode::setFromXmlNodes(const ez::xml::Node &vNode, const ez::xml::Node &vPare
     } else if (strName == "slot") {
         if (strParentName == "inputs") {
             uint32_t idx = 0U;
-            for (const auto &slot: m_getInputSlots()) {
+            for (const auto &slot : m_getInputSlots()) {
                 auto slot_ptr = std::static_pointer_cast<BaseSlot>(slot.lock());
                 if (vNode.getAttribute("lid") == ez::str::toStr("%u", idx++)) {
                     slot_ptr->setUuid(vNode.getAttribute<ez::Uuid>("gid"));
@@ -93,7 +92,7 @@ BaseNode::setFromXmlNodes(const ez::xml::Node &vNode, const ez::xml::Node &vPare
         }
         if (strParentName == "outputs") {
             uint32_t idx = 0U;
-            for (const auto &slot: m_getOutputSlots()) {
+            for (const auto &slot : m_getOutputSlots()) {
                 auto slot_ptr = std::static_pointer_cast<BaseSlot>(slot.lock());
                 if (vNode.getAttribute("lid") == ez::str::toStr("%u", idx++)) {
                     slot_ptr->setUuid(vNode.getAttribute<ez::Uuid>("gid"));
@@ -113,23 +112,22 @@ BaseStyle BaseNode::getNodeStyle() {
     return m_nodeStyle;
 }
 
-BaseSlotWeak
-BaseNode::findSlotByTypeAndOptionalName(ez::SlotDir vDir, const std::string &vType, const std::string &vName) {
+BaseSlotWeak BaseNode::findSlotByTypeAndOptionalName(ez::SlotDir vDir, const std::string &vType, const std::string &vName) {
     BaseSlotWeak ret;
     if (!vType.empty()) {
         if (vDir == ez::SlotDir::INPUT) {
-            for (const auto &slot: m_getInputSlots()) {
+            for (const auto &slot : m_getInputSlots()) {
                 auto base_slot_ptr = std::static_pointer_cast<BaseSlot>(slot.lock());
                 const auto &datas = base_slot_ptr->getDatas<BaseSlot::BaseSlotDatas>();
                 if (datas.type == vType) {
-                    ret = base_slot_ptr;//we save, the ptr but we continue to search a name
+                    ret = base_slot_ptr;  // we save, the ptr but we continue to search a name
                     if (datas.name == vName) {
-                        break;// we found the name we stop it
+                        break;  // we found the name we stop it
                     }
                 }
             }
         } else if (vDir == ez::SlotDir::OUTPUT) {
-            for (const auto &slot: m_getOutputSlots()) {
+            for (const auto &slot : m_getOutputSlots()) {
                 auto base_slot_ptr = std::static_pointer_cast<BaseSlot>(slot.lock());
                 const auto &datas = base_slot_ptr->getDatas<BaseSlot::BaseSlotDatas>();
                 if (datas.type == vType) {
@@ -174,7 +172,7 @@ void BaseNode::drawDebugInfos() {
     const auto &nodeDatas = getDatas<BaseNodeDatas>();
     ImGui::Text("Node : %s (%s)", nodeDatas.name.c_str(), nodeDatas.type.c_str());
     ImGui::Indent();
-    for (const auto &slot: m_getInputSlots()) {
+    for (const auto &slot : m_getInputSlots()) {
         auto base_slot_ptr = std::static_pointer_cast<BaseSlot>(slot.lock());
         if (base_slot_ptr != nullptr) {
             base_slot_ptr->drawDebugInfos();
@@ -183,7 +181,7 @@ void BaseNode::drawDebugInfos() {
         }
     }
 
-    for (const auto &slot: m_getOutputSlots()) {
+    for (const auto &slot : m_getOutputSlots()) {
         auto base_slot_ptr = std::static_pointer_cast<BaseSlot>(slot.lock());
         if (base_slot_ptr != nullptr) {
             base_slot_ptr->drawDebugInfos();
@@ -231,7 +229,7 @@ bool BaseNode::m_drawContent() {
     ImGui::BeginHorizontal("content");
     ImGui::Spring(0, 0);
     ImGui::BeginVertical("inputs", ImVec2(0, 0), 0.0f);
-    for (auto &slot: m_getInputSlotsRef()) {  // slots
+    for (auto &slot : m_getInputSlotsRef()) {  // slots
         auto base_slot_ptr = std::static_pointer_cast<BaseSlot>(slot.lock());
         change |= base_slot_ptr->draw();
         if (base_slot_ptr->isMouseDoubleClicked(m_doubleClickedSlotButton)) {
@@ -239,9 +237,9 @@ bool BaseNode::m_drawContent() {
         }
     }
     ImGui::EndVertical();
-    ImGui::Spring(1, 5.0f);                               // pour que BeginVertical soi pouss� au bout
+    ImGui::Spring(1, 5.0f);  // pour que BeginVertical soi pouss� au bout
     ImGui::BeginVertical("outputs", ImVec2(0, 0), 1.0f);  // 1.0f pour que l'interieur soit align� sur la fin
-    for (auto &slot: m_getOutputSlotsRef()) {            // slots
+    for (auto &slot : m_getOutputSlotsRef()) {  // slots
         auto base_slot_ptr = std::static_pointer_cast<BaseSlot>(slot.lock());
         change |= base_slot_ptr->draw();
         if (base_slot_ptr->isMouseDoubleClicked(m_doubleClickedSlotButton)) {
@@ -280,17 +278,17 @@ bool BaseNode::m_drawEnd() {
                 const ImVec4 NodePadding = nd::GetStyle().NodePadding;
                 const auto halfBorderWidth = nd::GetStyle().NodeBorderWidth;
                 draw_list_ptr->AddRectFilled(
-                        m_headerRect.Min - ImVec2(NodePadding.x - halfBorderWidth, NodePadding.y - halfBorderWidth),
-                        m_headerRect.Max + ImVec2(NodePadding.z - halfBorderWidth, 0),
-                        getDatas<BaseNodeDatas>().color,
-                        nd::GetStyle().NodeRounding,
-                        ImDrawFlags_RoundCornersTopLeft | ImDrawFlags_RoundCornersTopRight);
+                    m_headerRect.Min - ImVec2(NodePadding.x - halfBorderWidth, NodePadding.y - halfBorderWidth),
+                    m_headerRect.Max + ImVec2(NodePadding.z - halfBorderWidth, 0),
+                    getDatas<BaseNodeDatas>().color,
+                    nd::GetStyle().NodeRounding,
+                    ImDrawFlags_RoundCornersTopLeft | ImDrawFlags_RoundCornersTopRight);
                 auto alpha = static_cast<int>(255 * ImGui::GetStyle().Alpha);
                 draw_list_ptr->AddLine(
-                        ImVec2(m_headerRect.Min.x - (NodePadding.x - halfBorderWidth), m_headerRect.Max.y - 0.5f),
-                        ImVec2(m_headerRect.Max.x + (NodePadding.z - halfBorderWidth), m_headerRect.Max.y - 0.5f),
-                        ImColor(255, 255, 255, 96 * alpha / (3 * 255)),
-                        1.0f);
+                    ImVec2(m_headerRect.Min.x - (NodePadding.x - halfBorderWidth), m_headerRect.Max.y - 0.5f),
+                    ImVec2(m_headerRect.Max.x + (NodePadding.z - halfBorderWidth), m_headerRect.Max.y - 0.5f),
+                    ImColor(255, 255, 255, 96 * alpha / (3 * 255)),
+                    1.0f);
             }
 
             ret |= m_drawHints();
@@ -304,14 +302,14 @@ bool BaseNode::m_drawEnd() {
 }
 
 bool BaseNode::m_drawHints() {
-    for (auto &slot: m_getInputSlotsRef()) {
+    for (auto &slot : m_getInputSlotsRef()) {
         auto ptr = std::static_pointer_cast<BaseSlot>(slot.lock());
         if (nd::GetHoveredPin().Get() == ptr->getUuid()) {
             ptr->m_drawHoveredSlotText(ptr->m_pos, false, 0, 0);
         }
     }
 
-    for (auto &slot: m_getOutputSlotsRef()) {
+    for (auto &slot : m_getOutputSlotsRef()) {
         auto ptr = std::static_pointer_cast<BaseSlot>(slot.lock());
         if (nd::GetHoveredPin().Get() == ptr->getUuid()) {
             ptr->m_drawHoveredSlotText(ptr->m_pos, false, 0, 0);
@@ -332,8 +330,7 @@ void BaseNode::m_displayInfosOnTopOfTheNode() {
         auto draw_list_ptr = ImGui::GetWindowDrawList();
         if (draw_list_ptr) {
             auto datas = getDatas<BaseNodeDatas>();
-            const std::string &debugInfos = ez::str::toStr("Used(%s)\nCell(%i, %i)", datas.layout.used,
-                                                           datas.layout.cell.x, datas.layout.cell.y);
+            const std::string &debugInfos = ez::str::toStr("Used(%s)\nCell(%i, %i)", datas.layout.used, datas.layout.cell.x, datas.layout.cell.y);
             ImVec2 txtSize = ImGui::CalcTextSize(debugInfos.c_str());
             draw_list_ptr->AddText(m_pos - ImVec2(0, txtSize.y), ImGui::GetColorU32(ImGuiCol_Text), debugInfos.c_str());
         }
@@ -342,13 +339,13 @@ void BaseNode::m_displayInfosOnTopOfTheNode() {
 
 BaseSlotWeak BaseNode::m_findSlotById(nd::PinId vId) {
     if (vId) {
-        for (const auto &slot: m_getInputSlots()) {
+        for (const auto &slot : m_getInputSlots()) {
             auto base_slot_ptr = std::static_pointer_cast<BaseSlot>(slot.lock());
             if (base_slot_ptr->m_pinID == vId) {
                 return base_slot_ptr;
             }
         }
-        for (const auto &slot: this->m_getOutputSlots()) {
+        for (const auto &slot : this->m_getOutputSlots()) {
             auto base_slot_ptr = std::static_pointer_cast<BaseSlot>(slot.lock());
             if (base_slot_ptr->m_pinID == vId) {
                 return base_slot_ptr;
@@ -358,17 +355,16 @@ BaseSlotWeak BaseNode::m_findSlotById(nd::PinId vId) {
     return {};
 }
 
-
 // will return all connected link from all slots
 // for destruction by the graph
 // since ther links are owned by the graph
 BaseLinkWeakCnt BaseNode::m_getConnectedLinks() {
     BaseLinkWeakCnt ret;
-    for (const auto &slot: m_getInputSlots()) {
+    for (const auto &slot : m_getInputSlots()) {
         auto base_slot_ptr = std::static_pointer_cast<BaseSlot>(slot.lock());
         ret.tryMerge(base_slot_ptr->getLinks());
     }
-    for (const auto &slot: m_getOutputSlots()) {
+    for (const auto &slot : m_getOutputSlots()) {
         auto base_slot_ptr = std::static_pointer_cast<BaseSlot>(slot.lock());
         ret.tryMerge(base_slot_ptr->getLinks());
     }
@@ -379,7 +375,7 @@ bool BaseNode::m_isXmlLoading() {
     return m_xmlLoading;
 }
 
- bool BaseNode::m_removeSlot(const BaseSlotWeak &vSlot) {
+bool BaseNode::m_removeSlot(const BaseSlotWeak &vSlot) {
     if (!vSlot.expired()) {
         auto graph_ptr = getParentGraph<BaseGraph>().lock();
         if (graph_ptr != nullptr) {
