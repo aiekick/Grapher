@@ -223,6 +223,10 @@ bool BaseNode::m_drawHeader() {
     return false;
 }
 
+bool BaseNode::m_drawNodeContent() {
+    return false;
+}
+
 bool BaseNode::m_drawContent() {
     bool change = false;
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x, 0));
@@ -237,6 +241,8 @@ bool BaseNode::m_drawContent() {
         }
     }
     ImGui::EndVertical();
+    ImGui::Spring(1, 5.0f);  // pour que BeginVertical soi pouss� au bout
+    change |= m_drawNodeContent();
     ImGui::Spring(1, 5.0f);  // pour que BeginVertical soi pouss� au bout
     ImGui::BeginVertical("outputs", ImVec2(0, 0), 1.0f);  // 1.0f pour que l'interieur soit align� sur la fin
     for (auto &slot : m_getOutputSlotsRef()) {  // slots

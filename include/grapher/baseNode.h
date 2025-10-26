@@ -129,6 +129,7 @@ protected:  // Node
     virtual bool m_drawBegin();
     virtual bool m_drawHeader();
     virtual bool m_drawContent();
+    virtual bool m_drawNodeContent();
     virtual bool m_drawInputSlots();
     virtual bool m_drawOutputSlots();
     virtual bool m_drawFooter();

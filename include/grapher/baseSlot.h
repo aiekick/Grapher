@@ -126,8 +126,8 @@ public:
     bool isMouseDoubleClicked(ImGuiMouseButton& vButton);
 
 private:
-    void m_drawInputWidget();
-    void m_drawOutputWidget();
+    virtual void m_drawInputWidget();
+    virtual void m_drawOutputWidget();
 
 protected:
     ImVec2 m_getPos() { return m_pos; }
