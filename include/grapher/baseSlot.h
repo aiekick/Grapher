@@ -30,9 +30,10 @@ public:
         float slotIconSize{16.0f};
         bool highLighted{false};
         bool showWidget{false};
-        bool hideName{false};
+        bool showSlot{true};
+        bool showName{true};
         bool connected{false};
-        bool hidden{false};
+        bool visible{true};
         bool debugMode{false};
         std::string hoveredInfos;  // infox dipslayed when the slot is hovered
         BaseSlotDatas() = default;

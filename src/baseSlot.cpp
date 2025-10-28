@@ -28,18 +28,20 @@ bool BaseSlot::draw() {
     ImGui::PushID(this);
     m_doubleClickedButton = -1;
     auto& datas = getDatasRef<BaseSlotDatas>();
-    if (!datas.hidden) {
+    if (datas.visible) {
         if (isAnInput()) {
             nd::BeginPin(m_pinID, nd::PinKind::Input);
             {
                 ImGui::BeginHorizontal(m_pinID.AsPointer());
                 nd::PinPivotAlignment(ImVec2(0.0f, 0.5f));
                 nd::PinPivotSize(ImVec2(0, 0));
-                m_drawSlot();
+                if (datas.showSlot) {
+                    m_drawSlot();
+                }
                 if (datas.showWidget) {
                     m_drawInputWidget();
                 }
-                if (!datas.hideName) {
+                if (datas.showName) {
                     ImGui::TextUnformatted(datas.name.c_str());
                 }
                 ImGui::Spring(1);
@@ -51,7 +53,7 @@ bool BaseSlot::draw() {
             {
                 ImGui::BeginHorizontal(m_pinID.AsPointer());
                 ImGui::Spring(1);
-                if (!datas.hideName) {
+                if (datas.showName) {
                     ImGui::TextUnformatted(datas.name.c_str());
                 }
                 if (datas.showWidget) {
@@ -59,7 +61,9 @@ bool BaseSlot::draw() {
                 }
                 nd::PinPivotAlignment(ImVec2(0.0f, 0.5f));
                 nd::PinPivotSize(ImVec2(0, 0));
-                m_drawSlot();
+                if (datas.showSlot) {
+                    m_drawSlot();
+                }
                 ImGui::EndHorizontal();
             }
             nd::EndPin();

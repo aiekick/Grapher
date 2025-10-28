@@ -231,7 +231,6 @@ bool BaseNode::m_drawContent() {
     bool change = false;
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x, 0));
     ImGui::BeginHorizontal("content");
-    ImGui::Spring(0, 0);
     ImGui::BeginVertical("inputs", ImVec2(0, 0), 0.0f);
     for (auto &slot : m_getInputSlotsRef()) {  // slots
         auto base_slot_ptr = std::static_pointer_cast<BaseSlot>(slot.lock());
@@ -241,10 +240,8 @@ bool BaseNode::m_drawContent() {
         }
     }
     ImGui::EndVertical();
-    ImGui::Spring(1, 5.0f);  // pour que BeginVertical soi pouss� au bout
-    change |= m_drawNodeContent();
-    ImGui::Spring(1, 5.0f);  // pour que BeginVertical soi pouss� au bout
-    ImGui::BeginVertical("outputs", ImVec2(0, 0), 1.0f);  // 1.0f pour que l'interieur soit align� sur la fin
+    m_drawNodeContent();
+    ImGui::BeginVertical("outputs", ImVec2(0, 0), 1.0f);  // 1.0f pour que l'interieur soit aligne sur la fin
     for (auto &slot : m_getOutputSlotsRef()) {  // slots
         auto base_slot_ptr = std::static_pointer_cast<BaseSlot>(slot.lock());
         change |= base_slot_ptr->draw();

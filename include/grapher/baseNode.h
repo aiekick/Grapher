@@ -124,6 +124,22 @@ public:  // Template
         }
         return slot_ptr;
     }
+    template <typename T>
+    std::weak_ptr<T> createChildSlot(ez::SlotDir vDir) {
+        static_assert(std::is_base_of<BaseSlot, T>::value, "T must derive of BaseSlot");
+        auto slot_ptr = std::make_shared<T>(m_parentStyle);
+        slot_ptr->m_setThis(slot_ptr);
+        slot_ptr->setUuid(slot_ptr->getUuid());  // call the virtual setUuid for derived classes
+        if (!slot_ptr->init()) {
+            slot_ptr.reset();
+        } else {
+            slot_ptr->getDatasRef().dir = vDir;
+            if (m_addSlot(slot_ptr) != ez::RetCodes::SUCCESS) {
+                slot_ptr.reset();
+            }
+        }
+        return slot_ptr;
+    }
 
 protected:  // Node
     virtual bool m_drawBegin();
