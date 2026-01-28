@@ -11,7 +11,7 @@ BaseLinkPtr BaseLink::create(const BaseStyle& vParentStyle, const BaseSlotWeak& 
     return link_ptr;
 }
 
-BaseLink::BaseLink(const BaseStyle& vParentStyle) //
+BaseLink::BaseLink(const BaseStyle& vParentStyle)  //
     : ez::UUID(this), m_parentStyle(vParentStyle) {}
 
 bool BaseLink::init(const BaseSlotWeak& vStart, const BaseSlotWeak& vEnd) {
@@ -55,8 +55,8 @@ const BaseSlotWeak& BaseLink::getOutSlot() const {
 void BaseLink::drawDebugInfos() {
     ImGui::Text(
         "Link : %s -> %s",  //
-        (m_in.expired()) ? "Expîred" : m_in.lock()->getDatas<BaseSlot::BaseSlotDatas>().name.c_str(),
-        (m_out.expired()) ? "Expîred" : m_out.lock()->getDatas<BaseSlot::BaseSlotDatas>().name.c_str());
+        (m_in.expired()) ? "Expired" : m_in.lock()->getDatas<BaseSlot::BaseSlotDatas>().name.c_str(),
+        (m_out.expired()) ? "Expired" : m_out.lock()->getDatas<BaseSlot::BaseSlotDatas>().name.c_str());
 }
 
 //////////////////////////////////////////////////////////////////////////////

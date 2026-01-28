@@ -68,7 +68,7 @@ void BaseLayout::ColumnContainer::addNode(const BaseNodeWeak &vNode) {
         if (node_ptr != nullptr) {
             auto &node_datas = node_ptr->getDatasRef<BaseNode::BaseNodeDatas>();
             if (node_datas.layout.inserted) {
-                LogVarDebugError("le node a deja été inséré.. (ColumnContainerStruct::AddNode)");
+                LogVarDebugError("le node a deja ete insere.. (ColumnContainerStruct::AddNode)");
             }
 
             if (nodes.find(node_datas.layout.cell.y) != nodes.end()) {  // deja existant
@@ -125,9 +125,9 @@ void BaseLayout::m_resetNodeStates() {
             auto node_ptr = node.lock();
             if (node_ptr != nullptr) {
                 auto &node_datas = node_ptr->getDatasRef<BaseNode::BaseNodeDatas>();
-                node_datas.layout.cell = ez::ivec2(-1);  // -1 pour que le 1er node (genre 'main') soit mit dans la colonne 0, sinon il serait ignoré
-                node_datas.layout.inserted = false;      // pour voir si on insere le node plusieurs fois (utilité que pour debug)
-                node_datas.layout.used = false;          // node utiisié ou non, pour cacher les nodes qui servent a rien
+                node_datas.layout.cell = ez::ivec2(-1);  // -1 pour que le 1er node (genre 'main') soit mit dans la colonne 0, sinon il serait ignorï¿½
+                node_datas.layout.inserted = false;  // pour voir si on insere le node plusieurs fois (utilitï¿½ que pour debug)
+                node_datas.layout.used = false;  // node utiisiï¿½ ou non, pour cacher les nodes qui servent a rien
             }
         }
     }
@@ -152,7 +152,7 @@ void BaseLayout::m_classifyNodes(std::string vRootFunction) {
                 if (!connected) {
                     auto &node_datas = node_ptr->getDatasRef<BaseNode::BaseNodeDatas>();
 
-                    // le node racine est utilisé, sinon non et on le marque comme tel
+                    // le node racine est utilisï¿½, sinon non et on le marque comme tel
                     // car apres on va propager cet etat a tout ces enfants
                     node_datas.layout.used = (node_datas.name == vRootFunction) || node_datas.layout.rootUsed;
 
@@ -194,8 +194,8 @@ void BaseLayout::m_setColumnOfNodesRecurs(const BaseNodeWeak &vNode, ez::ivec2 v
     if (node_datas.layout.cell.x < vNodeCell.x) {
         node_datas.layout.cell = vNodeCell;
 
-        // on dit ou doit etre placé le node
-        // position qui pourra etre réevaluée plus tard, si un enfant l'utilse aussi
+        // on dit ou doit etre placï¿½ le node
+        // position qui pourra etre rï¿½evaluï¿½e plus tard, si un enfant l'utilse aussi
         // dans ce cas il ira dans la colonne d'apres l'enfant
         // c'est pour ca qu'on ne les mets pas tout de suite dans leur cellule
         // sinon ca pourrai cree un ajout du meme node dans plusieurs colonnes
@@ -253,7 +253,7 @@ void BaseLayout::m_definePositionsOfNodes() {
                 if (nodePtr) {
                     nextNodeBottomPosY += ((nodeIdx == 0) ? 0.0f : s_NodeSpacing.y);  // on ajoute l'espace ci besoin au curseur
                     nodePtr->m_pos.x = column.offset.x + column.size.x * s_NodeCentering - nodePtr->m_size.x * s_NodeCentering;  // centrage x du node dans la colonne
-                    nodePtr->m_pos.y = nextNodeBottomPosY;                                                                      // position du node en y
+                    nodePtr->m_pos.y = nextNodeBottomPosY;  // position du node en y
 
                     nodeIdx++;
                     nextNodeBottomPosY += nodePtr->m_size.y;  // on place le curseur de position au bas du node que l'on vient de placer
