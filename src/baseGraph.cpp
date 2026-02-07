@@ -338,6 +338,10 @@ void BaseGraph::selectSlotAsTargetAction(const BaseGraphWeak& vGraph, const Base
     }
 }
 
+void BaseGraph::setCreateLinkFunctor(const CreateLinkFunctor& vFunctor) {
+    m_CreateLinkFunctor = vFunctor;
+}
+
 //////////////////////////////////////////////////////////////////////////////
 ////// DRAW DEBUG INFOS //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
@@ -526,6 +530,12 @@ void BaseGraph::m_doCreateNodeFromSlot(const BaseSlotWeak& vSlot) {
     }
 }
 
+BaseLinkPtr BaseGraph::m_dotCreateLinkAction(const BaseStyle& vParentStyle, const BaseSlotWeak& vStart, const BaseSlotWeak& vEnd) {
+    if (m_CreateLinkFunctor != nullptr) {
+        return m_CreateLinkFunctor(vParentStyle, vStart, vEnd);
+    }
+    return BaseLink::create(vParentStyle, vStart, vEnd);
+}
     
 //////////////////////////////////////////////////////////////////////////////
 ////// SHORTCUT //////////////////////////////////////////////////////////////
@@ -670,7 +680,7 @@ bool BaseGraph::m_addVisualLink(const BaseSlotWeak& vStart, const BaseSlotWeak& 
     const auto startPtr = vStart.lock();
     const auto endPtr = vEnd.lock();
     if (startPtr != nullptr && endPtr != nullptr) {
-        auto link_ptr = BaseLink::create(m_parentStyle, vStart, vEnd);
+        auto link_ptr = m_dotCreateLinkAction(m_parentStyle, vStart, vEnd);
         if (link_ptr != nullptr) {
             if (m_links.tryAdd(link_ptr->getUuid(), link_ptr)) {
                 if (startPtr->m_links.tryAdd(link_ptr->getUuid(), link_ptr) && endPtr->m_links.tryAdd(link_ptr->getUuid(), link_ptr)) {

@@ -34,7 +34,8 @@ public:
     typedef std::function<bool(const BaseGraphWeak&, const ez::xml::Node&, const ez::xml::Node&, UserDatas)> LoadNodeFromXmlFunctor;
     typedef std::function<void(const BaseGraphWeak&, const BaseNodeWeak&, const BaseSlotWeak&, const ImGuiMouseButton&, UserDatas)> SelectSlotActionFunctor;
     typedef std::function<bool(const BaseGraphWeak&, const BaseNodeWeak&, UserDatas)> IsNodeSelectedAsTargetActionFunctor;
-    typedef std::function<void(const BaseGraphWeak&, const BaseNodeWeak&, const BaseSlotWeak&, UserDatas)> SelectSlotAsTargetActionFunctor; 
+    typedef std::function<void(const BaseGraphWeak&, const BaseNodeWeak&, const BaseSlotWeak&, UserDatas)> SelectSlotAsTargetActionFunctor;
+    typedef std::function<BaseLinkPtr(const BaseStyle&, const BaseSlotWeak&, const BaseSlotWeak&)> CreateLinkFunctor;
     typedef ez::Uuid LinkUuid;
 
 public:  // Static
@@ -66,6 +67,7 @@ private:  // Graph
     SelectSlotActionFunctor m_SelectSlotActionFunctor{nullptr};
     IsNodeSelectedAsTargetActionFunctor m_IsNodeSelectedAsTargetActionFunctor{nullptr};
     SelectSlotAsTargetActionFunctor m_SelectSlotAsTargetActionFunctor{nullptr};
+    CreateLinkFunctor m_CreateLinkFunctor{nullptr};
     std::vector<nd::NodeId> m_nodesToCopy;  // for copy/paste
     ImVec2 m_nodesCopyOffset;
     bool m_graphChanged{false};
@@ -156,6 +158,8 @@ public:  // Normal
     void setSelectSlotAsTargetActionFunctor(const SelectSlotAsTargetActionFunctor& vFunctor);
     void selectSlotAsTargetAction(const BaseGraphWeak& vGraph, const BaseNodeWeak& vNode, const BaseSlotWeak& vSlot, UserDatas vUserDatas);
 
+    void setCreateLinkFunctor(const CreateLinkFunctor& vFunctor);
+
     void drawDebugInfos() override;
 
     void beforeXmlLoading() override;
@@ -208,6 +212,8 @@ private:  // Graph
     void m_doDeleteLinkOrNode();
     void m_doSelectedLinkOrNode();
     void m_doGetSelectedNodeSlot(const BaseNodeWeak& vSlot);
+
+    BaseLinkPtr m_dotCreateLinkAction(const BaseStyle& vParentStyle, const BaseSlotWeak& vStart, const BaseSlotWeak& vEnd);
 
     void m_doShorcutsOnNode();
 
