@@ -126,13 +126,14 @@ public:
 
     bool isMouseDoubleClicked(ImGuiMouseButton& vButton);
 
+    ImVec2 getPos() { return m_pos; }
+    ImVec2 getSize() { return m_size; }
+
 private:
     virtual void m_drawInputWidget();
     virtual void m_drawOutputWidget();
 
 protected:
-    ImVec2 m_getPos() { return m_pos; }
-    ImVec2 m_getSize() { return m_size; }
     void m_drawSlot();
     virtual void m_drawBaseSlot(const ImVec2& vCenter, bool vConnected, ImU32 vColor, ImU32 vInnerColor);
     virtual void m_drawHoveredSlotText(const ImVec2& vCenter, bool vConnected, ImU32 vColor, ImU32 vInnerColor);

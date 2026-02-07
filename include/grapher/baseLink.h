@@ -24,7 +24,7 @@ private:
     BaseSlotWeak m_out;
     float m_thick = 2.0f;
     nd::LinkId m_linkId = 0;
-    std::string m_type;                         // will retain the type of one of the slots
+    std::string m_type;  // will retain the type of one of the slots
     ImU32 m_color{IM_COL32(100, 100, 0, 200)};  // will retain the color of one of the slots
 
 public:  // Static
@@ -33,13 +33,13 @@ public:  // Static
 public:
     explicit BaseLink(const BaseStyle& vParentStyle);
     ~BaseLink() override = default;
-    bool init(const BaseSlotWeak& vStart, const BaseSlotWeak& vEnd);
-    bool draw();
+    virtual bool init(const BaseSlotWeak& vStart, const BaseSlotWeak& vEnd);
+    virtual bool draw();
     const BaseSlotWeak& getInSlot() const;
     const BaseSlotWeak& getOutSlot() const;
-    
+
     void drawDebugInfos() override;
 
-     ez::xml::Nodes getXmlNodes(const std::string& vUserDatas = "") override;
-     bool setFromXmlNodes(const ez::xml::Node& vNode, const ez::xml::Node& vParent, const std::string& vUserDatas) override;
+    ez::xml::Nodes getXmlNodes(const std::string& vUserDatas = "") override;
+    bool setFromXmlNodes(const ez::xml::Node& vNode, const ez::xml::Node& vParent, const std::string& vUserDatas) override;
 };
